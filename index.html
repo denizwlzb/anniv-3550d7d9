@@ -4,201 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="robots" content="noindex,nofollow">
-<title>La Quête du Héros</title>
+<title>La Quête du Shoe Store</title>
 <style>
-  html,body{margin:0;height:100%;background:#12122a;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
-  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-  canvas{background:#87ceeb;max-width:100%;max-height:100%;image-rendering:auto}
-  .btn{position:fixed;bottom:18px;width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.6);font-size:34px;display:none;align-items:center;justify-content:center;color:#fff}
-  .btn:active,.btn.on{background:rgba(255,255,255,.5)}
-  #left{left:16px}#right{left:112px}#jump{right:20px;width:100px;height:100px;bottom:22px}
-  @media (pointer:coarse){.btn{display:flex}}
+html,body{margin:0;height:100%;background:#14002a;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{background:#ffe066;max-width:100%;max-height:100%}
+.btn{position:fixed;bottom:18px;width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.6);font-size:34px;display:none;align-items:center;justify-content:center;color:#fff}
+.btn:active,.btn.on{background:rgba(255,255,255,.5)}
+#left{left:16px}#right{left:112px}#jump{right:20px;width:100px;height:100px;bottom:22px}
+#emote{right:134px;width:70px;height:70px;bottom:30px;font-size:32px}
+@media (pointer:coarse){.btn{display:flex}}
 </style>
 </head>
 <body>
 <div id="wrap"><canvas id="c" width="800" height="450"></canvas></div>
-<div class="btn" id="left">◀</div><div class="btn" id="right">▶</div><div class="btn" id="jump">⤒</div>
-<script>
-/* ============ À PERSONNALISER ============ */
-const CONFIG = {
-  name: "LE HÉROS",
-  age: 20,
-  title: "La Quête de LE HÉROS",
-  intro: ["Ce jour est un grand jour…", "Traverse le niveau, écrase les ennemis,", "et sauve ton gâteau d'anniversaire !"],
-  items: [
-    ["☕", "Café ! Le carburant officiel du héros."],
-    ["🍕", "Pizza récupérée. Régime reporté à demain."],
-    ["🎮", "Une manette ! Productivité : 0%."],
-    ["📱", "Batterie à 1%. Comme d'habitude."],
-    ["🧢", "La casquette de la chance."],
-    ["💸", "Il reste 3 euros sur le compte. Gère."],
-    ["🎁", "Un cadeau ! (Il est pour toi.)"],
-    ["⏰", "Réveil snooze pour la 9e fois."]
-  ],
-  enemies: [
-    ["⏰", "Le Réveil du Lundi", "Le Lundi matin est vaincu !"],
-    ["📧", "Les Mails non lus", "Mail archivé sans lire. Efficace."],
-    ["🚇", "Le Métro en retard", "Le métro est enfin à l'heure (grâce à toi)."],
-    ["🥦", "Le Brocoli", "Brocoli éliminé. Ta mère serait fière."]
-  ],
-  boss: { emoji: "👹", name: "LE GRAND BOSS DES 20 ANS", hp: 3,
-          hit: ["Aïe ! Il te traite de vieux !", "Il rétorque : « t'as plus 18 ans ! »", "Dernier coup… pour le gâteau !"] },
-  lose: ["Aïe ! Même ta chute est stylée.", "Rate pas ton saut, c'est ton anniv !", "Ça arrive aux meilleurs.", "On va dire que c'était volontaire."],
-  win: ["JOYEUX ANNIVERSAIRE !", "Tu as vaincu le Boss et sauvé le gâteau.", "Level up : +1 an. Mais toujours aussi légendaire."],
-  signature: "— de la part de tes amis"
-};
-/* ========================================= */
-
-const FACE = new Image(); FACE.src = "data:image/jpeg;base64,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";
-const cv = document.getElementById('c'), g = cv.getContext('2d');
-const W = 800, H = 450, GY = 380, WORLD = 4200;
-const keys = {};
-addEventListener('keydown', e => { keys[e.code] = true; if (["Space","ArrowUp","ArrowDown"].includes(e.code)) e.preventDefault(); });
-addEventListener('keyup', e => keys[e.code] = false);
-for (const [id, k] of [['left','ArrowLeft'],['right','ArrowRight'],['jump','Space']]) {
-  const el = document.getElementById(id);
-  const on = e => { e.preventDefault(); keys[k] = true; el.classList.add('on'); };
-  const off = e => { e.preventDefault(); keys[k] = false; el.classList.remove('on'); };
-  el.addEventListener('touchstart', on); el.addEventListener('touchend', off); el.addEventListener('touchcancel', off);
-  el.addEventListener('mousedown', on); el.addEventListener('mouseup', off);
-}
-
-const ground = [[0,900],[1050,700],[1900,600],[2650,800],[3550,650]];
-const plats = [[350,290,120],[600,235,120],[1250,290,120],[1500,235,110],[2100,290,120],[2300,235,120],[2800,290,120],[3000,235,120],[3350,300,100],[3450,250,80]];
-const solids = ground.map(([x,w]) => ({x,y:GY,w})).concat(plats.map(([x,y,w]) => ({x,y,w})));
-const checkpoints = [0, 1050, 1900, 2650, 3550];
-const itemSpots = [[250,330],[400,240],[650,185],[1150,330],[1300,240],[1550,185],[2000,330],[2150,240],[2350,185],[2750,330],[2850,240],[3050,185],[3400,200]];
-let items, enemies, boss, player, cam, state, msg, msgT, deaths, score, cp, t, confetti, introT;
-
-function reset() {
-  items = itemSpots.map(([x,y],i) => ({x,y,got:false,d:CONFIG.items[i % CONFIG.items.length]}));
-  enemies = [[500,0,ground[0]],[900,0,ground[0]],[1300,1,ground[1]],[1600,1,ground[1]],[2050,2,ground[2]],[2300,2,ground[2]],[2900,3,ground[3]],[3150,3,ground[3]]].map(([x,k,seg]) => ({
-    x, y: GY-34, w:34, h:34, vx: 1.1, min: seg[0]+10, max: seg[0]+seg[1]-44, dead:false, d:CONFIG.enemies[k % CONFIG.enemies.length]}));
-  enemies = enemies.filter(e => e.x > e.min && e.x < e.max);
-  boss = {x:3750,y:GY-80,w:80,h:80,vx:1.6,min:3600,max:4020,hp:CONFIG.boss.hp,dead:false,flash:0};
-  player = {x:60,y:GY-54,w:30,h:54,vx:0,vy:0,ground:false,face:1};
-  cam = 0; msg = ""; msgT = 0; deaths = 0; score = 0; cp = 0; t = 0; confetti = []; introT = 0;
-}
-function say(s, d=150) { msg = s; msgT = d; }
-function respawn(reason) {
-  deaths++;
-  player.x = checkpoints[cp] + 40; player.y = GY - 60; player.vx = player.vy = 0;
-  say(reason || CONFIG.lose[deaths % CONFIG.lose.length], 170);
-}
-function start() { reset(); state = 'intro'; }
-start();
-function press() { if (state === 'intro') { state = 'play'; } else if (state === 'win' && t > 120) start(); }
-cv.addEventListener('touchstart', press); cv.addEventListener('mousedown', press);
-addEventListener('keydown', e => { if (e.code === 'Space' || e.code === 'Enter') press(); });
-
-function update() {
-  t++;
-  if (state === 'win') { for (const c of confetti) { c.x += c.vx; c.y += c.vy; c.vy += .05; if (c.y > H + 20) { c.y = -10; c.x = Math.random()*W; c.vy = 1 + Math.random()*2; } } return; }
-  if (state !== 'play') return;
-  const p = player;
-  const L = keys.ArrowLeft || keys.KeyA || keys.KeyQ, R = keys.ArrowRight || keys.KeyD;
-  const J = keys.Space || keys.ArrowUp || keys.KeyW || keys.KeyZ;
-  p.vx = (R ? 4.6 : 0) - (L ? 4.6 : 0);
-  if (p.vx) p.face = Math.sign(p.vx);
-  if (J && p.ground) { p.vy = -13.2; p.ground = false; }
-  p.vy += .62; if (p.vy > 16) p.vy = 16;
-  const prevBottom = p.y + p.h;
-  p.x += p.vx; p.y += p.vy;
-  if (p.x < 0) p.x = 0; if (p.x > WORLD - p.w) p.x = WORLD - p.w;
-  p.ground = false;
-  for (const s of solids) {
-    if (p.x + p.w > s.x && p.x < s.x + s.w && prevBottom <= s.y + 1 && p.y + p.h >= s.y && p.vy >= 0) {
-      p.y = s.y - p.h; p.vy = 0; p.ground = true;
-    }
-  }
-  for (let i = checkpoints.length - 1; i >= 0; i--) if (p.x > checkpoints[i] + 20) { cp = Math.max(cp, i); break; }
-  if (p.y > H + 80) respawn();
-
-  for (const it of items) if (!it.got && Math.abs(p.x + 15 - it.x) < 26 && Math.abs(p.y + 27 - it.y) < 40) { it.got = true; score++; say(it.d[1], 150); }
-
-  for (const e of enemies) {
-    if (e.dead) continue;
-    e.x += e.vx; if (e.x < e.min || e.x > e.max) e.vx *= -1;
-    if (p.x + p.w > e.x + 3 && p.x < e.x + e.w - 3 && p.y + p.h > e.y && p.y < e.y + e.h) {
-      if (p.vy > 1 && prevBottom < e.y + 18) { e.dead = true; p.vy = -9; say(e.d[2], 130); }
-      else respawn("Touché par " + e.d[1] + " !");
-    }
-  }
-  if (!boss.dead) {
-    boss.x += boss.vx; if (boss.x < boss.min || boss.x > boss.max) boss.vx *= -1;
-    if (boss.flash > 0) boss.flash--;
-    if (p.x + p.w > boss.x + 6 && p.x < boss.x + boss.w - 6 && p.y + p.h > boss.y && p.y < boss.y + boss.h) {
-      if (p.vy > 1 && prevBottom < boss.y + 28 && boss.flash === 0) {
-        boss.hp--; boss.flash = 45; p.vy = -12; boss.vx *= 1.25;
-        if (boss.hp <= 0) { boss.dead = true; say(CONFIG.boss.name + " est vaincu ! Va chercher le gâteau !", 220); }
-        else say(CONFIG.boss.hit[(CONFIG.boss.hp - boss.hp - 1) % CONFIG.boss.hit.length], 150);
-      } else if (boss.flash === 0) respawn("Le boss t'a écrasé !");
-    }
-  }
-  if (p.x > 4090) {
-    if (boss.dead) { state = 'win'; t = 0; for (let i = 0; i < 120; i++) confetti.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.5,vy:1+Math.random()*2,c:`hsl(${Math.random()*360},90%,60%)`}); }
-    else { p.x = 4085; say("Le gâteau est protégé par le Boss !", 120); }
-  }
-  cam = Math.max(0, Math.min(WORLD - W, p.x - W * .4));
-  if (msgT > 0) msgT--;
-}
-
-function head(x, y, r) {
-  g.save(); g.beginPath(); g.arc(x, y, r, 0, 7); g.closePath(); g.clip();
-  if (FACE.complete && FACE.naturalWidth) g.drawImage(FACE, x - r, y - r, r*2, r*2);
-  else { g.fillStyle = '#8d5a3b'; g.fillRect(x-r, y-r, r*2, r*2); }
-  g.restore(); g.lineWidth = 3; g.strokeStyle = '#fff'; g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke();
-}
-function emoji(ch, x, y, size) { g.font = size + 'px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(ch, x, y); }
-function wrap(text, x, y, maxW, lh) {
-  const words = text.split(' '); let line = '', yy = y;
-  for (const w of words) { const test = line + w + ' '; if (g.measureText(test).width > maxW && line) { g.fillText(line, x, yy); line = w + ' '; yy += lh; } else line = test; }
-  g.fillText(line, x, yy);
-}
-
-function draw() {
-  const sky = g.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#6ec6ff'); sky.addColorStop(1,'#d6f0ff');
-  g.fillStyle = sky; g.fillRect(0,0,W,H);
-  for (let i = 0; i < 8; i++) { const cx = ((i*330 - cam*.3) % (W+300) + W+300) % (W+300) - 150; g.fillStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.arc(cx,70+(i%3)*40,28,0,7); g.arc(cx+30,76+(i%3)*40,22,0,7); g.arc(cx-28,80+(i%3)*40,20,0,7); g.fill(); }
-  g.save(); g.translate(-cam, 0);
-  for (const [x,w] of ground) { g.fillStyle = '#5b3a29'; g.fillRect(x, GY, w, H - GY); g.fillStyle = '#4caf50'; g.fillRect(x, GY, w, 12); }
-  for (const [x,y,w] of plats) { g.fillStyle = '#8b5e3c'; g.fillRect(x, y, w, 14); g.fillStyle = '#66bb6a'; g.fillRect(x, y, w, 5); }
-  for (const x of checkpoints.slice(1)) { g.fillStyle = '#fff'; g.fillRect(x + 10, GY - 50, 4, 50); g.fillStyle = '#ff5252'; g.fillRect(x + 14, GY - 50, 22, 14); }
-  for (const it of items) if (!it.got) emoji(it.d[0], it.x, it.y + Math.sin(t / 15 + it.x) * 4, 30);
-  for (const e of enemies) if (!e.dead) emoji(e.d[0], e.x + e.w/2, e.y + e.h/2, 36);
-  if (!boss.dead && !(boss.flash > 0 && t % 6 < 3)) { emoji(CONFIG.boss.emoji, boss.x + 40, boss.y + 40, 84); g.fillStyle = '#000'; g.fillRect(boss.x, boss.y - 14, 80, 8); g.fillStyle = '#f44'; g.fillRect(boss.x + 1, boss.y - 13, 78 * boss.hp / CONFIG.boss.hp, 6); }
-  emoji('🎂', 4150, GY - 30, 60);
-  const p = player;
-  g.fillStyle = '#1a1a2e'; g.fillRect(p.x + 2, p.y + 30, 26, 18);
-  g.fillStyle = '#2d2d4a'; const step = p.vx ? Math.sin(t / 3) * 5 : 0; g.fillRect(p.x + 4, p.y + 46, 9, 8 + step); g.fillRect(p.x + 17, p.y + 46, 9, 8 - step);
-  head(p.x + 15, p.y + 20, 21);
-  g.restore();
-
-  g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, 0, W, 34);
-  g.fillStyle = '#fff'; g.font = 'bold 16px system-ui'; g.textAlign = 'left'; g.textBaseline = 'middle';
-  g.fillText(CONFIG.name + "  •  objets " + score + "/" + items.length + "  •  chutes " + deaths, 12, 17);
-  if (msgT > 0) { g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(40, 50, W - 80, 50); g.fillStyle = '#fff'; g.font = 'bold 18px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; wrap(msg, W/2, 75, W - 110, 22); }
-
-  if (state === 'intro') {
-    g.fillStyle = 'rgba(10,10,40,.82)'; g.fillRect(0,0,W,H);
-    head(W/2, 120, 62);
-    g.fillStyle = '#ffd54f'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 34px system-ui'; g.fillText(CONFIG.title, W/2, 215);
-    g.fillStyle = '#fff'; g.font = '19px system-ui'; CONFIG.intro.forEach((l,i) => g.fillText(l, W/2, 262 + i * 28));
-    g.font = '16px system-ui'; g.fillStyle = '#9fa8da'; g.fillText("◀ ▶ pour bouger  •  ⤒ / Espace pour sauter  •  saute sur les ennemis", W/2, 366);
-    g.fillStyle = '#fff'; g.font = 'bold 22px system-ui'; g.fillText("▶ Touche l'écran pour commencer", W/2, 405 + Math.sin(performance.now()/300)*3);
-  }
-  if (state === 'win') {
-    g.fillStyle = 'rgba(10,10,40,.8)'; g.fillRect(0,0,W,H);
-    for (const c of confetti) { g.fillStyle = c.c; g.fillRect(c.x, c.y, 7, 11); }
-    head(W/2, 110, 62);
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#ffd54f'; g.font = 'bold 40px system-ui'; g.fillText("🎉 " + CONFIG.win[0] + " 🎉", W/2, 210);
-    g.fillStyle = '#fff'; g.font = 'bold 28px system-ui'; g.fillText(CONFIG.name + ", " + CONFIG.age + " ans !", W/2, 256);
-    g.font = '19px system-ui'; g.fillText(CONFIG.win[1], W/2, 300); g.fillText(CONFIG.win[2], W/2, 328);
-    g.font = 'italic 17px system-ui'; g.fillStyle = '#9fa8da'; g.fillText(CONFIG.signature, W/2, 366);
-    g.fillStyle = '#fff'; g.font = '16px system-ui'; g.fillText("(touche pour rejouer)", W/2, 405);
-  }
-}
-(function loop() { update(); draw(); requestAnimationFrame(loop); })();
-</script>
+<div class="btn" id="left">◀</div><div class="btn" id="right">▶</div><div class="btn" id="jump">⤒</div><div class="btn" id="emote">😂</div>
+<script src="face.js"></script>
+<script src="config.js"></script>
+<script src="game.js"></script>
 </body>
 </html>
